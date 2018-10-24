@@ -14,14 +14,16 @@ typedef struct {
 
 typedef struct {
   uint32_t magic; // NFWB
-  uint32_t version; // 0x02 ?
-  uint32_t unk1; // 0x226 / 0x21C
+  uint32_t VersionMajor;
+  uint32_t VersionMinor;
   uint8_t pad1[20];
-  uint8_t sig[20]; // sha1 based sig ?
+  uint32_t data_size; // File size - header (0xC0)
+  uint8_t md5[0x10]; // File MD5 w/o header (0xC0 -> EOF)
   uint32_t files_count;
-  uint32_t header_size; // 0x180
+  uint32_t header_size; // Total header, 0x180
   uint8_t pad2[128];
-  uint32_t crc32; // of what
+  uint32_t crc32; // crc32(header) with header.crc32 = 0
+
   file_entry_t entries[6];
   uint8_t pad3[0x18];
 } UPG_header_t;
@@ -62,8 +64,8 @@ int main(int argc, char *argv[])
     snprintf(path, 256, "%s/file_%X", dir, header->entries[i].offset);
 
     printf("[*] Extracting file_%X ", header->entries[i].offset);
-    printf("(MD5: ");
 
+    printf("(MD5: ");
     for (j = 0; j < 0x10; j++) {
       printf("%02X", header->entries[i].md5[j]);
     }
@@ -71,6 +73,7 @@ int main(int argc, char *argv[])
 
     if ((out = fopen(path, "wb+")) == NULL) {
       perror("Could not create file");
+      free(path);
       continue;
     }
 
