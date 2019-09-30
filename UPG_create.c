@@ -10,6 +10,8 @@
 #include "crc32.c"
 
 int g_nfiles = 0;
+int g_version_major = 0x2;
+int g_version_minor = 0x21c;
 
 static struct option long_options[] =
 {
@@ -32,6 +34,7 @@ void print_help(char *exe)
 "usage: %s [options] -o out.upg\n"\
 "Options:\n"\
   "\t[-o --out out.upg] \t\t- Output UPG file\n"\
+  "\t[-v --version X.YYY] \t- Upgrade version (X - major, YYY - minor)\n"\
   "\t[-u --uboot u-boot.bin] \t- U-Boot Bootloader\n"\
   "\t[-U --ubootdat u-boot.dat] \t- U-Boot data\n"\
   "\t[-S --stbc stbc.bin] \t\t- STBC Firmware\n"\
@@ -63,8 +66,8 @@ void write_header(FILE *fp)
 
   snprintf(&header.magic[0], 5, "NFWB");
 
-  header.version_major = 0x2;
-  header.version_minor = 0x21C;
+  header.version_major = g_version_major;
+  header.version_minor = g_version_minor;
 
   fseek(fp, 0, SEEK_END);
   header.data_size = ftell(fp) - sizeof(UPG_header_t);
@@ -128,10 +131,14 @@ int main(int argc, char *argv[])
   size_t offset = 0, files_table_size = 0;
 
   int c;
-  while ((c = getopt_long(argc, argv, "o:u:U:S:k:r:b:a:s:h", long_options, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "o:v:u:U:S:k:r:b:a:s:h", long_options, NULL)) != -1) {
     switch (c) {
       case 'o':
         output = strdup(optarg);
+        break;
+      case 'v':
+        g_version_major = atoll(optarg);
+        g_version_minor = atoll(strchr(optarg, '.') + 1);
         break;
       case 'u':
         uboot = strdup(optarg);
@@ -202,7 +209,7 @@ int main(int argc, char *argv[])
   if (stbc)
     get_file_infos(&files_table[c++], stbc, FILE_STBC, &offset, out);
   if (kernel)
-    get_file_infos(&files_table[c++], kernel, FILE_KERNEL, &offset, out);
+    get_file_infos(&files_table[c++], kernel, FILE_KERNEL0, &offset, out);
   if (rootfs)
     get_file_infos(&files_table[c++], rootfs, FILE_ROOTFS, &offset, out);
   if (boardfs)
