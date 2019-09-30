@@ -4,12 +4,14 @@
 #include <stdint.h>
 
 enum FILE_ID {
-  FILE_BOOTROM = 1,
-  FILE_ROOTFS = 3,
-  FILE_SPLASHSCREEN = 5,
-  FILE_BOOTLOADER = 7,
-  FILE_KERNEL = 9,
-  FILE_BOARDFS = 12
+  FILE_UBOOT = 1,
+  FILE_UBOOTDAT = 2,
+  FILE_STBC = 3,
+  FILE_KERNEL = 5,
+  FILE_ROOTFS = 7,
+  FILE_BOARDFS = 9,
+  FILE_APPDAT = 11,
+  FILE_SPLASH = 12
 };
 
 typedef struct {

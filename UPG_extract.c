@@ -61,9 +61,9 @@ int main(int argc, char *argv[])
 
   for (i = 0; i < header->files_count; i++) {
     path = malloc(256 * sizeof(char));
-    snprintf(path, 256, "%s/file_%X", dir, header->entries[i].offset);
+    snprintf(path, 256, "%s/file_%d_%X", dir, header->entries[i].id, header->entries[i].offset);
 
-    printf("[*] Extracting file_%X ", header->entries[i].offset);
+    printf("[*] Extracting file_%d_%X ", header->entries[i].id, header->entries[i].offset);
 
     printf("(MD5: ");
     for (j = 0; j < 0x10; j++) {
